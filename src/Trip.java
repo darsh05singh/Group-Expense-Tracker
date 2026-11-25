@@ -1,4 +1,5 @@
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.*;
 
 public class Trip implements Serializable {
@@ -7,9 +8,11 @@ public class Trip implements Serializable {
     private List<Payment> paymentList;
     private Map<Integer, String> memberID;
     private Map<Integer, Map<Integer, Integer>> balance;
+    private String tripName;
 
 
-    public Trip(Map<Integer, String> memberID) {
+    public Trip(String tripName,Map<Integer, String> memberID) {
+        this.tripName = tripName;
         this.memberID = memberID;
         this.balance = new HashMap<>();
         this.paymentList = new ArrayList<>();
@@ -213,6 +216,76 @@ public class Trip implements Serializable {
         if (counter[0] == counter1[0]) {
             IO.println("There are no leftover dues");
         }
+        IO.println();
     }
 
-}
+    public void finalSummary() {
+
+        IO.println("\t\t\t\t\tThe final summary for: " + tripName);
+        IO.println();
+        IO.println("Number of members in the trip: " + memberID.size());
+        IO.println("Member names: ");
+
+        memberID.forEach((id, name) -> {
+            IO.print(name + " ");
+        });
+        IO.println();
+        IO.println();
+
+        IO.println("Total number of expenses made: " + expenseList.size());
+        IO.println("Total number of payments made: " + paymentList.size());
+        IO.println();
+
+        int expenseMoney = 0;
+        for(int i = 0; i<expenseList.size(); i++) {
+            expenseMoney+=expenseList.get(i).getAmount();
+
+        }
+        double newExpenseMoney = expenseMoney/100.0;
+        IO.println(String.format("Total money spent on expenses: %.2f", newExpenseMoney));
+
+        int paymentMoney = 0;
+        for(int i = 0; i<paymentList.size(); i++) {
+            paymentMoney+=paymentList.get(i).getAmount();
+        }
+        double newPaymentMoney = paymentMoney/100.0;
+        IO.println(String.format("Total money spent on payments: %.2f", newPaymentMoney));
+        IO.println();
+
+        LocalDate date = null;
+        LocalDate maxDate = null;
+        int maxCount = 0;
+
+        int dateCount = 0;
+
+        for(int i = 0; i<expenseList.size(); i++) {
+            date = expenseList.get(i).getDate();
+
+            for (int j = 0; j<expenseList.size(); j++) {
+                if(expenseList.get(j).getDate().isEqual(date)) {
+                    dateCount++;
+                }
+            }
+            if(dateCount>maxCount) {
+                maxCount = dateCount;
+                maxDate = expenseList.get(i).getDate();
+            }
+            dateCount = 0;
+        }
+
+
+        IO.println("The date with the most expenses was " + maxDate + " with a total of " + maxCount + " expenses");
+        IO.println();
+        IO.println("The remaining leftover balances are: ");
+
+        displayBalance();
+
+        IO.println("Hope you had a fun trip!");
+
+
+    }
+
+    }
+
+
+
