@@ -28,7 +28,7 @@ public class Trip implements Serializable {
             return false;
         }
 
-        if(amount <= 0) {
+        if (amount <= 0) {
             IO.println("Amount has to be positive");
             return false;
         }
@@ -92,6 +92,10 @@ public class Trip implements Serializable {
 
         expenseList.add(expense);
         IO.println("Expense successfully added");
+        IO.println();
+        displayBalance();
+        IO.println();
+
         return true;
 
     }
@@ -132,6 +136,8 @@ public class Trip implements Serializable {
                     balance.get(receiverID).put(payerID, newShare);
                     paymentList.add(payment);
                     IO.println("Payment successfully added");
+                    IO.println();
+                    displayBalance();
                     return true;
 
                 } else {
@@ -158,6 +164,8 @@ public class Trip implements Serializable {
                     balance.get(payerID).put(receiverID, newShare);
                     paymentList.add(payment);
                     IO.println("Payment successfully added");
+                    IO.println();
+                    displayBalance();
                     return true;
 
                 } else {
@@ -170,6 +178,41 @@ public class Trip implements Serializable {
             }
         }
 
+    }
+
+
+    public void displayBalance() {
+
+        final int[] counter = {0};
+        final int[] counter1 = {0};
+
+        if (balance.isEmpty()) {
+            IO.println("There are no current dues");
+            return;
+        }
+
+        balance.forEach((key, value) -> {
+            value.forEach((key1, value1) -> {
+                counter1[0] += 1;
+                double newValue = value1 / 100.0;
+
+
+                if (value1 > 0) {
+                    String outputValue = String.format("%.2f", newValue);
+                    IO.println(memberID.get(key1) + " owes " + memberID.get(key) + " $" + outputValue);
+                } else if (value1 < 0) {
+                    newValue = newValue * -1;
+                    String outputValue = String.format("%.2f", newValue);
+                    IO.println(memberID.get(key) + " owes " + memberID.get(key1) + " $" + outputValue);
+                } else {
+                    counter[0]++;
+                }
+            });
+        });
+
+        if (counter[0] == counter1[0]) {
+            IO.println("There are no leftover dues");
+        }
     }
 
 }
