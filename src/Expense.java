@@ -7,14 +7,14 @@ public class Expense implements Serializable {
     private int amount;
     private int payer;
     private LocalDate date;
-    private List<Integer> members;
+    private List<Integer> users;
 
 
 
-    public Expense (int payer, List<Integer> members, int amount, LocalDate date) {
+    public Expense (int payer, List<Integer> users, int amount, LocalDate date) {
         this.payer = payer;
         this.amount = amount;
-        this.members = members;
+        this.users = users;
         this.date = date;
     }
 
@@ -25,8 +25,8 @@ public class Expense implements Serializable {
     public int getPayer() {
         return payer;
     }
-    public List<Integer> getMembers() {
-        return members;
+    public List<Integer> getUsers() {
+        return users;
     }
     public LocalDate getDate() {
         return date;
