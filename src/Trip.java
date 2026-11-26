@@ -26,28 +26,49 @@ public class Trip implements Serializable {
         int amount = expense.getAmount();
         List<Integer> userList = expense.getUsers();
 
-        if ((!memberID.containsKey(payerID)) || !userList.contains(payerID)) {
-            IO.println("Wrong member selected");
-            return false;
-        }
-
         if (amount <= 0) {
-            IO.println("Amount has to be positive");
+            IO.println();
+            IO.println("EXPENSE UNSUCCESSFUL...Expense amount has to be positive");
+            IO.println();
+
             return false;
         }
 
         for (int oneUser : userList) {
             if (!memberID.containsKey(oneUser)) {
-                IO.println("Wrong member/s selected");
+                IO.println();
+                IO.println("EXPENSE UNSUCCESSFUL...The ID(s) provided for the split do not belong to trip members");
+                IO.println();
+
                 return false;
             }
         }
+
+        if ((!memberID.containsKey(payerID))) {
+            IO.println();
+            IO.println("EXPENSE UNSUCCESSFUL...The ID for the payer doesn't belong to any trip member");
+            IO.println();
+
+            return false;
+        }
+
+        if(!userList.contains(payerID)) {
+            IO.println();
+            IO.println("EXPENSE UNSUCCESSFUL...The split list doesn't include the selected payer");
+            IO.println();
+
+            return false;
+        }
+
 
         for (int i = 0; i < userList.size(); i++) {
             int userCheck = userList.get(i);
             for (int j = i + 1; j < userList.size(); j++) {
                 if (userCheck == userList.get(j)) {
-                    IO.println("Duplicate members selected");
+                    IO.println();
+                    IO.println("EXPENSE UNSUCCESSFUL...Duplicate members selected for the split");
+                    IO.println();
+
                     return false;
                 }
             }
@@ -94,10 +115,11 @@ public class Trip implements Serializable {
         }
 
         expenseList.add(expense);
-        IO.println("Expense successfully added");
         IO.println();
+        IO.println("EXPENSE SUCCESSFULLY ADDED");
+        IO.println("--------------------------");
+        IO.println("The current balances are:");
         displayBalance();
-        IO.println();
 
         return true;
 
@@ -110,16 +132,26 @@ public class Trip implements Serializable {
         int receiverID = payment.getReceiver();
 
         if (amount <= 0) {
+            IO.println();
+            IO.println("PAYMENT UNSUCCESSFUL... Payment amount was not positive");
             IO.println("Enter a positive amount");
+            IO.println();
+
             return false;
         }
         if (payerID == receiverID) {
-            IO.println("Can't pay yourself");
+            IO.println();
+            IO.println("PAYMENT UNSUCCESSFUL...Payer can't be Receiver");
+            IO.println();
+
             return false;
         }
 
         if ((!memberID.containsKey(payerID)) || !memberID.containsKey(receiverID)) {
-            IO.println("Wrong member selected");
+            IO.println();
+            IO.println("PAYMENT UNSUCCESSFUL...The ID(s) provided do not belong to trip members");
+            IO.println();
+
             return false;
         }
 
@@ -128,27 +160,39 @@ public class Trip implements Serializable {
                 if (balance.get(receiverID).containsKey(payerID)) {
                     int oldShare = balance.get(receiverID).get(payerID);
                     if (oldShare <= 0) {
-                        IO.println("Nothing owed");
+                        IO.println();
+                        IO.println("PAYMENT UNSUCCESSFUL...No balance was owed");
+                        IO.println();
+
                         return false;
                     }
                     if (amount > oldShare) {
-                        IO.println("Payment is more than whats owed");
+                        IO.println();
+                        IO.println("PAYMENT UNSUCCESSFUL...Payment amount is more than whats owed");
+                        IO.println();
+
                         return false;
                     }
                     int newShare = oldShare - amount;
                     balance.get(receiverID).put(payerID, newShare);
                     paymentList.add(payment);
-                    IO.println("Payment successfully added");
                     IO.println();
+                    IO.println("PAYMENT SUCCESSFULLY ADDED");
+                    IO.println("--------------------------");
+                    IO.println("The current balances are:");
                     displayBalance();
                     return true;
 
                 } else {
-                    IO.println("Nothing owed");
+                    IO.println();
+                    IO.println("PAYMENT UNSUCCESSFUL...No balance was owed");
+                    IO.println();
                     return false;
                 }
             } else {
-                IO.println("Nothing owed");
+                IO.println();
+                IO.println("PAYMENT UNSUCCESSFUL...No balance was owed");
+                IO.println();
                 return false;
             }
         } else {
@@ -156,31 +200,40 @@ public class Trip implements Serializable {
                 if (balance.get(payerID).containsKey(receiverID)) {
                     int oldShare = balance.get(payerID).get(receiverID);
                     if (oldShare >= 0) {
-                        IO.println("Nothing owed");
+                        IO.println();
+                        IO.println("PAYMENT UNSUCCESSFUL...No balance was owed");
+                        IO.println();
                         return false;
                     }
                     if (amount > (oldShare * -1)) {
-                        IO.println("Payment is more than whats owed");
+                        IO.println();
+                        IO.println("PAYMENT UNSUCCESSFUL...Payment amount is more than whats owed");
+                        IO.println();
                         return false;
                     }
                     int newShare = oldShare + amount;
                     balance.get(payerID).put(receiverID, newShare);
                     paymentList.add(payment);
-                    IO.println("Payment successfully added");
                     IO.println();
+                    IO.println("PAYMENT SUCCESSFULLY ADDED");
+                    IO.println("--------------------------");
+                    IO.println("The current balances are:");
                     displayBalance();
                     return true;
 
                 } else {
-                    IO.println("Nothing owed");
+                    IO.println();
+                    IO.println("PAYMENT UNSUCCESSFUL...No balance was owed");
+                    IO.println();
                     return false;
                 }
             } else {
-                IO.println("Nothing owed");
+                IO.println();
+                IO.println("PAYMENT UNSUCCESSFUL...No balance was owed");
+                IO.println();
                 return false;
             }
         }
-
     }
 
 
@@ -279,13 +332,10 @@ public class Trip implements Serializable {
         IO.println("The remaining leftover balances are: ");
 
         displayBalance();
-
+        IO.println();
         IO.println("Hope you had a fun trip!");
 
 
     }
 
     }
-
-
-
