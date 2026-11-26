@@ -20,6 +20,13 @@ public class Trip implements Serializable {
 
     }
 
+    public String getTripName() {
+        return tripName;
+    }
+    public Map<Integer,String> getMemberIDs () {
+        return memberID;
+    }
+
     public boolean addExpense(Expense expense) {
 
         int payerID = expense.getPayer();
