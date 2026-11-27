@@ -7,6 +7,17 @@ import java.time.LocalDate;
 public class Main {
     public static void main(String[] args) {
 
+        /*
+        The main method runs the command-line interface and stores the user's data.
+
+         Most of the user input validation in the main method is to ensure users entered the write data type as their input,
+         while the Trip class handles majority of the logical validation for expenses and payments such as rejecting a negative payment amount.
+
+         This separation is so that the Trip class works on its own without much of the filtering from the main class,
+         and it allows for easier testing when checking to see if Trip class works properly.
+
+         */
+
         File tripFile = new File("TripData.ser");
         if (!tripFile.exists()) {
             IO.println("Welcome to the Group Expense Tracker\n");
@@ -148,7 +159,7 @@ public class Main {
                     }
                     IO.println();
                     Expense expense = new Expense(payerNumber, sharedList, convertedExpense, date);
-                    boolean result = trip.addExpense(expense);
+                    trip.addExpense(expense);
 
                 } else if (menuSelection == 2) {
                     IO.println();
@@ -202,7 +213,7 @@ public class Main {
                     IO.println();
 
                     Payment payment = new Payment(payerID, receiverID, convertedPayment, date);
-                    boolean result = trip.addPayment(payment);
+                    trip.addPayment(payment);
 
                 } else if (menuSelection == 3) {
                     IO.println();
@@ -359,7 +370,7 @@ public class Main {
                     }
                     IO.println();
                     Expense expense = new Expense(payerNumber, sharedList, convertedExpense, date);
-                    boolean result = trip.addExpense(expense);
+                    trip.addExpense(expense);
 
                 } else if (menuSelection == 2) {
                     IO.println();
@@ -413,7 +424,7 @@ public class Main {
                     IO.println();
 
                     Payment payment = new Payment(payerID, receiverID, convertedPayment, date);
-                    boolean result = trip.addPayment(payment);
+                    trip.addPayment(payment);
 
                 } else if (menuSelection == 3) {
                     IO.println();
