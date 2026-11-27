@@ -55,8 +55,24 @@ public class Main {
                 }
                 memberMap.put(i, name);
             }
+            double groupBudget = 0;
+            while (true) {
+                try {
+                    groupBudget = Double.parseDouble(IO.readln("Please enter the group budget for the trip: $"));
+                    if (groupBudget <= 0) {
+                        throw new IllegalArgumentException();
+                    }
+                    break;
 
-            Trip trip = new Trip(tripName, memberMap);
+                } catch (NumberFormatException e) {
+                    IO.println("Please enter a valid number. Ensure no commas are present.");
+                } catch (IllegalArgumentException e) {
+                    IO.println("Please enter a positive positive budget");
+                }
+            }
+            int convertedBudget = (int) (groupBudget*100.0);
+
+            Trip trip = new Trip(tripName, memberMap, convertedBudget);
 
 
             while (true) {
@@ -91,6 +107,8 @@ public class Main {
                         }
 
                     }
+                    int convertedExpense = (int) (expenseAmount * 100);
+
                     IO.println();
                     IO.println("Below are the trip members");
                     memberMap.forEach((id, name) -> {
@@ -145,7 +163,6 @@ public class Main {
                     IO.println();
 
 
-                    int convertedExpense = (int) (expenseAmount * 100);
                     LocalDate date = null;
 
                     while (true) {

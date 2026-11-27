@@ -18,16 +18,24 @@ public class Trip implements Serializable {
     private Map<Integer, String> memberID;
     private Map<Integer, Map<Integer, Integer>> balance;
     private String tripName;
+    private int groupBudget;
+    private Map<Integer, Integer> personalBudgets;
+    private int initialGroupBudget;
 
 
-    public Trip(String tripName,Map<Integer, String> memberID) {
+
+    public Trip(String tripName,Map<Integer, String> memberID, int groupBudget) {
         this.tripName = tripName;
         this.memberID = memberID;
         this.balance = new HashMap<>();
         this.paymentList = new ArrayList<>();
         this.expenseList = new ArrayList<>();
+        this.groupBudget = groupBudget;
+        this.initialGroupBudget = groupBudget;
 
     }
+
+
 
     public String getTripName() {
         return tripName;
@@ -35,6 +43,7 @@ public class Trip implements Serializable {
     public Map<Integer,String> getMemberIDs () {
         return memberID;
     }
+
 
     public void addExpense(Expense expense) {
 
@@ -164,11 +173,15 @@ public class Trip implements Serializable {
         }
 
         expenseList.add(expense);
+        groupBudget = groupBudget-expense.getAmount();
+
         IO.println();
         IO.println("EXPENSE SUCCESSFULLY ADDED");
         IO.println("--------------------------");
         IO.println("The current balances are:");
         displayBalance();
+        IO.println();
+        showGroupBudget();
 
         return;
 
@@ -419,4 +432,29 @@ public class Trip implements Serializable {
 
     }
 
+    public void showGroupBudget() {
+
+        double tripBudget = groupBudget/100.0;
+        double convertedInitial = initialGroupBudget/100.0;
+        double fifteenPercent = convertedInitial * .15;
+
+        IO.println("GROUP BUDGET UPDATE: ");
+        IO.println("--------------------");
+        if(groupBudget == 0) {
+            IO.println("GROUP BUDGET REACHED.... The remaining group budget is $0.00");
+        } else if (groupBudget < 0) {
+            IO.println("GROUP BUDGET EXCEEDED");
+            IO.println(String.format("The total expenses has crossed the group budget. The current budget balance is $%.2f", tripBudget));
+        } else if (tripBudget < fifteenPercent) {
+            IO.println("WARNING");
+            IO.print(String.format("Less than 15%% of the initial budget remains. The remaining budget balance is $%.2f", tripBudget));
+        }
+        else{
+
+            IO.println(String.format("The remaining group budget is $%.2f", tripBudget));
+        }
+        IO.println();
+
     }
+
+}
