@@ -11,23 +11,36 @@ public class Trip implements Serializable {
     /*
      The expenseList and paymentList store all successful expenses and payments.
      The memberID map stores the ID associated with each member of the Trip.
-     The balance nested map keeps track of one members net balance with another member
+     The balance nested map keeps track of one members net balance with another member.
+     The personal budget map stores the individual budget for each member.
+
+     An extra initialGroupBudget field is created to store the original budget to be used later, while the groupBudget field changes
      */
     private List<Expense> expenseList;
     private List<Payment> paymentList;
     private Map<Integer, String> memberID;
     private Map<Integer, Map<Integer, Integer>> balance;
     private String tripName;
+    private int groupBudget;
+    private int initialGroupBudget;
+    private Map<String, Integer> personalBudgets;
 
 
-    public Trip(String tripName,Map<Integer, String> memberID) {
+
+
+    public Trip(String tripName,Map<Integer, String> memberID, int groupBudget, Map<String, Integer> personalBudgets) {
         this.tripName = tripName;
         this.memberID = memberID;
         this.balance = new HashMap<>();
         this.paymentList = new ArrayList<>();
         this.expenseList = new ArrayList<>();
+        this.groupBudget = groupBudget;
+        this.initialGroupBudget = groupBudget;
+        this.personalBudgets = personalBudgets;
 
     }
+
+
 
     public String getTripName() {
         return tripName;
@@ -35,6 +48,7 @@ public class Trip implements Serializable {
     public Map<Integer,String> getMemberIDs () {
         return memberID;
     }
+
 
     public void addExpense(Expense expense) {
 
@@ -111,6 +125,12 @@ public class Trip implements Serializable {
                 share += 1;
             }
 
+            /*
+            An updatedShare variable is created because the other share variable changes,
+            however we need an original updated share to modify each person personal budget later on
+             */
+            int  updatedShare = share;
+
             //The payer doesn't owe anybody anything, which is why they are excluded when determining dues
 
             if (userList.get(i) != payerID) {
@@ -160,16 +180,35 @@ public class Trip implements Serializable {
                 }
 
             }
+            /*
+                Despite the fact that only one person paid, everybody's personal budget goes down to give them
+                a real idea of how much actual money they have left to spend.
+             */
+
+            String memberName = memberID.get(userList.get(i));
+            int currentPersonalBudget = personalBudgets.get(memberName);
+            int newPersonalBudget = currentPersonalBudget - updatedShare;
+            personalBudgets.put(memberName, newPersonalBudget);
+
 
         }
 
+
         expenseList.add(expense);
+        //A single personal expense shouldn't count towards the group expense
+        if(userList.size() != 1){
+            groupBudget = groupBudget-amount;
+        }
+
         IO.println();
         IO.println("EXPENSE SUCCESSFULLY ADDED");
         IO.println("--------------------------");
         IO.println("The current balances are:");
         displayBalance();
-
+        IO.println();
+        showGroupBudget();
+        IO.println();
+        showPersonalBudgets();
         return;
 
     }
@@ -203,8 +242,6 @@ public class Trip implements Serializable {
 
             return;
         }
-
-
 
 
         if (receiverID < payerID) {
@@ -243,6 +280,7 @@ public class Trip implements Serializable {
                     int newShare = oldShare - amount;
                     balance.get(receiverID).put(payerID, newShare);
                     paymentList.add(payment);
+
                     IO.println();
                     IO.println("PAYMENT SUCCESSFULLY ADDED");
                     IO.println("--------------------------");
@@ -287,6 +325,7 @@ public class Trip implements Serializable {
                     int newShare = oldShare + amount;
                     balance.get(payerID).put(receiverID, newShare);
                     paymentList.add(payment);
+
                     IO.println();
                     IO.println("PAYMENT SUCCESSFULLY ADDED");
                     IO.println("--------------------------");
@@ -419,4 +458,48 @@ public class Trip implements Serializable {
 
     }
 
+    /*
+        The showGroupBudget and showPersonalBudgets methods will only display the current status of the respective budgets
+        instead of enforcing a strict limit.
+
+        This is because users enter their expenses in the tracker after they have occurred, so not validating an expense that has already occurred
+        will fail to fully track the Trip expenses.
+     */
+
+    public void showGroupBudget() {
+
+        double tripBudget = groupBudget/100.0;
+        double convertedInitial = initialGroupBudget/100.0;
+        double fifteenPercent = convertedInitial * .15;
+
+        IO.println("GROUP BUDGET UPDATE: ");
+        IO.println("--------------------");
+        if(groupBudget == 0) {
+            IO.println("GROUP BUDGET REACHED.... The remaining group budget is $0.00");
+        } else if (groupBudget < 0) {
+            IO.println("GROUP BUDGET EXCEEDED");
+            IO.println(String.format("The total expenses has crossed the group budget. The current budget balance is $%.2f", tripBudget));
+        } else if (tripBudget < fifteenPercent) {
+            IO.println("WARNING");
+            IO.print(String.format("Less than 15%% of the initial budget remains. The remaining budget balance is $%.2f", tripBudget));
+        }
+        else{
+
+            IO.println(String.format("The remaining group budget is $%.2f", tripBudget));
+        }
+        IO.println();
+
     }
+
+    public void showPersonalBudgets() {
+        IO.println("PERSONAL BUDGET UPDATE");
+        IO.println("----------------------");
+        personalBudgets.forEach((name, budget) -> {
+            double convertedPersonalBudget = budget/100.0;
+            IO.println(String.format("The remaining personal budget for %s is $%.2f", name, convertedPersonalBudget));
+        });
+        IO.println();
+    }
+
+
+}
