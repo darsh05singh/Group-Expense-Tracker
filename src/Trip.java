@@ -11,7 +11,10 @@ public class Trip implements Serializable {
     /*
      The expenseList and paymentList store all successful expenses and payments.
      The memberID map stores the ID associated with each member of the Trip.
-     The balance nested map keeps track of one members net balance with another member
+     The balance nested map keeps track of one members net balance with another member.
+     The personal budget map stores the individual budget for each member.
+
+     An extra initialGroupBudget field is created to store the original budget to be used later, while the groupBudget field changes
      */
     private List<Expense> expenseList;
     private List<Payment> paymentList;
@@ -19,12 +22,13 @@ public class Trip implements Serializable {
     private Map<Integer, Map<Integer, Integer>> balance;
     private String tripName;
     private int groupBudget;
-    private Map<Integer, Integer> personalBudgets;
     private int initialGroupBudget;
+    private Map<String, Integer> personalBudgets;
 
 
 
-    public Trip(String tripName,Map<Integer, String> memberID, int groupBudget) {
+
+    public Trip(String tripName,Map<Integer, String> memberID, int groupBudget, Map<String, Integer> personalBudgets) {
         this.tripName = tripName;
         this.memberID = memberID;
         this.balance = new HashMap<>();
@@ -32,6 +36,7 @@ public class Trip implements Serializable {
         this.expenseList = new ArrayList<>();
         this.groupBudget = groupBudget;
         this.initialGroupBudget = groupBudget;
+        this.personalBudgets = personalBudgets;
 
     }
 
@@ -120,6 +125,12 @@ public class Trip implements Serializable {
                 share += 1;
             }
 
+            /*
+            An updatedShare variable is created because the other share variable changes,
+            however we need an original updated share to modify each person personal budget later on
+             */
+            int  updatedShare = share;
+
             //The payer doesn't owe anybody anything, which is why they are excluded when determining dues
 
             if (userList.get(i) != payerID) {
@@ -169,11 +180,25 @@ public class Trip implements Serializable {
                 }
 
             }
+            /*
+                Despite the fact that only one person paid, everybody's personal budget goes down to give them
+                a real idea of how much actual money they have left to spend.
+             */
+
+            String memberName = memberID.get(userList.get(i));
+            int currentPersonalBudget = personalBudgets.get(memberName);
+            int newPersonalBudget = currentPersonalBudget - updatedShare;
+            personalBudgets.put(memberName, newPersonalBudget);
+
 
         }
 
+
         expenseList.add(expense);
-        groupBudget = groupBudget-expense.getAmount();
+        //A single personal expense shouldn't count towards the group expense
+        if(userList.size() != 1){
+            groupBudget = groupBudget-amount;
+        }
 
         IO.println();
         IO.println("EXPENSE SUCCESSFULLY ADDED");
@@ -182,7 +207,8 @@ public class Trip implements Serializable {
         displayBalance();
         IO.println();
         showGroupBudget();
-
+        IO.println();
+        showPersonalBudgets();
         return;
 
     }
@@ -216,8 +242,6 @@ public class Trip implements Serializable {
 
             return;
         }
-
-
 
 
         if (receiverID < payerID) {
@@ -256,6 +280,7 @@ public class Trip implements Serializable {
                     int newShare = oldShare - amount;
                     balance.get(receiverID).put(payerID, newShare);
                     paymentList.add(payment);
+
                     IO.println();
                     IO.println("PAYMENT SUCCESSFULLY ADDED");
                     IO.println("--------------------------");
@@ -300,6 +325,7 @@ public class Trip implements Serializable {
                     int newShare = oldShare + amount;
                     balance.get(payerID).put(receiverID, newShare);
                     paymentList.add(payment);
+
                     IO.println();
                     IO.println("PAYMENT SUCCESSFULLY ADDED");
                     IO.println("--------------------------");
@@ -432,6 +458,14 @@ public class Trip implements Serializable {
 
     }
 
+    /*
+        The showGroupBudget and showPersonalBudgets methods will only display the current status of the respective budgets
+        instead of enforcing a strict limit.
+
+        This is because users enter their expenses in the tracker after they have occurred, so not validating an expense that has already occurred
+        will fail to fully track the Trip expenses.
+     */
+
     public void showGroupBudget() {
 
         double tripBudget = groupBudget/100.0;
@@ -456,5 +490,16 @@ public class Trip implements Serializable {
         IO.println();
 
     }
+
+    public void showPersonalBudgets() {
+        IO.println("PERSONAL BUDGET UPDATE");
+        IO.println("----------------------");
+        personalBudgets.forEach((name, budget) -> {
+            double convertedPersonalBudget = budget/100.0;
+            IO.println(String.format("The remaining personal budget for %s is $%.2f", name, convertedPersonalBudget));
+        });
+        IO.println();
+    }
+
 
 }
